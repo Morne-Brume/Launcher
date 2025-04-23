@@ -40,6 +40,19 @@ subprojects {
         workingDir.mkdirs()
     }
 
+    publishing {
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = "https://maven.pkg.github.com/Morne-Brume/Launcher"
+                credentials {
+                    username = System.getenv("GITHUB_ACTOR")
+                    password = System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
+    }
+
     // Work around gradle shadow bug
     // see https://github.com/johnrengelman/shadow/issues/713
     afterEvaluate {
@@ -72,18 +85,5 @@ subprojects {
 task clean {
     subprojects {
         rootProject.clean.dependsOn tasks.matching { it.name == "clean" }
-    }
-}
-
-publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = "https://maven.pkg.github.com/Morne-Brume/Launcher"
-            credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
-            }
-        }
     }
 }
