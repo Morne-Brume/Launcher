@@ -7,6 +7,7 @@
 package com.skcraft.launcher.launch;
 
 import com.google.common.base.Function;
+import com.skcraft.launcher.Configuration;
 import com.skcraft.launcher.Launcher;
 import com.skcraft.launcher.dialog.LauncherFrame;
 import com.skcraft.launcher.dialog.ProcessConsoleFrame;
@@ -36,22 +37,27 @@ public class LaunchProcessHandler implements Function<Process, ProcessConsoleFra
     @Override
     public ProcessConsoleFrame apply(final Process process) {
         log.info("Watching process " + process);
+        Configuration config = launcher.getConfig();
 
         try {
-            SwingUtilities.invokeAndWait(new Runnable() {
-                @Override
-                public void run() {
-                    consoleFrame = new ProcessConsoleFrame(CONSOLE_NUM_LINES, true);
-                    consoleFrame.setProcess(process);
-                    consoleFrame.setVisible(true);
-                    MessageLog messageLog = consoleFrame.getMessageLog();
-                    messageLog.consume(process.getInputStream());
-                    messageLog.consume(process.getErrorStream());
-                }
-            });
+            if(config.isShowLogPanel()) {
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    @Override
+                    public void run() {
 
+                        consoleFrame = new ProcessConsoleFrame(CONSOLE_NUM_LINES, true);
+                        consoleFrame.setProcess(process);
+                        consoleFrame.setVisible(true);
+                        MessageLog messageLog = consoleFrame.getMessageLog();
+                        messageLog.consume(process.getInputStream());
+                        messageLog.consume(process.getErrorStream());
+
+                    }
+                });
+            }
             // Wait for the process to end
             process.waitFor();
+
         } catch (InterruptedException e) {
             // Orphan process
         } catch (InvocationTargetException e) {
@@ -61,7 +67,7 @@ public class LaunchProcessHandler implements Function<Process, ProcessConsoleFra
         log.info("Process ended, re-showing launcher...");
 
         // Restore the launcher
-        SwingUtilities.invokeLater(new Runnable() {
+        /*SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 if (consoleFrame != null) {
@@ -69,7 +75,7 @@ public class LaunchProcessHandler implements Function<Process, ProcessConsoleFra
                     consoleFrame.requestFocus();
                 }
             }
-        });
+        });*/
 
         return consoleFrame;
     }
