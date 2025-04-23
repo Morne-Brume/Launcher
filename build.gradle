@@ -14,6 +14,7 @@ println """
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'maven-publish'
 
     group = 'com.skcraft'
     version = '4.6-SNAPSHOT'
@@ -49,6 +50,11 @@ subprojects {
                     username = System.getenv("GITHUB_ACTOR")
                     password = System.getenv("GITHUB_TOKEN")
                 }
+            }
+        }
+        publications {
+            gpr(MavenPublication) {
+                from(components.java)
             }
         }
     }
